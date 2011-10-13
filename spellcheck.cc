@@ -1,7 +1,7 @@
 #include <iostream> 
 #include <fstream> 
 #include <string> 
-#include <set>
+#include <map>
 #include <vector>
 #include <ctime>
 #include <cstdlib>
@@ -9,27 +9,29 @@
 using namespace std;
 
 void OpenUserFile(ifstream& input);
-void LoadWords(ifstream& input, set<string>& wordList);
-void PrintWords(set<string>& wordList);
-void Spellchecker(set<string>& wordList);
-bool LookupWord(set<string>& wordList, string word);
-string CorrectSpelling(set<string>& wordList, string word);
+void LoadWords(ifstream& input, map<string,string>& wordList_dynamic, map<string,string>& wordList_original);
+void Spellchecker(map<string,string>& wordList_dynamic, map<string,string>& wordList_original);
 void ToLowerCase(string& str);
-void GenWordsVowels(string word, vector<string>& words_vowels);
+void StarVowels(string& word);
 bool Vowel(char ch);
-string RemoveRepeatLetters(string word);
+void RemoveRepeatLetters(string& word);
 
 int main()	{
 	ifstream input;
-	set<string> wordList;
+
+	//Word is JoB. Maps j*b to job (shortened, no vowels)
+	map<string,string> wordList_dynamic;
+	//Word is JoB. Maps job to JoB (original form) 
+	map<string,string> wordList_original;
+
 	OpenUserFile(input);
-	LoadWords(input, wordList);
-	PrintWords(wordList);
-	Spellchecker(wordList);
+	LoadWords(input, wordList_dynamic, wordList_original);
+	
+	Spellchecker(wordList_dynamic, wordList_original);
 }
 
 void OpenUserFile(ifstream& input)	{
-	while(true)	{
+	while (true)	{
 		cout << "Enter filename for list of words: " << endl;
 		string filename;
 		getline(cin, filename);
@@ -42,102 +44,84 @@ void OpenUserFile(ifstream& input)	{
 	}
 }
 
-void LoadWords(ifstream& input, set<string>& wordList)	{	
-	while(true)	{
+void LoadWords(ifstream& input, map<string,string>& wordList_dynamic, map<string,string>& wordList_original)	{	
+	while (true)	{
 		string word;
 		input >> word;
 
 		if(input.fail()) break;
 
-		wordList.insert(word);
+		string word_starred = string(word);
+
+		ToLowerCase(word_starred);
+		RemoveRepeatLetters(word_starred);
+		StarVowels(word_starred);
+
+		string word_simple = string(word);
+		ToLowerCase(word_simple);
+
+		//Original word: JoB
+		//Dynamic map: j*b => job
+		//Original map: job => JoB
+		wordList_dynamic.insert(make_pair(word_starred, word_simple));
+		wordList_original.insert(make_pair(word_simple, word));
 	}
 }
 
-void PrintWords(set<string>& wordList)	{
-	for(set<string>::iterator itr = wordList.begin(); itr != wordList.end(); itr++)	{
-		cout << *itr << endl;
-	}
-}
-
-void Spellchecker(set<string>& wordList)	{
-	string correct_word;
+void Spellchecker(map<string,string>& wordList_dynamic, map<string,string>& wordList_original)	{
 
 	while(true)	{
 		cout << "> ";
 		string word;
 		getline(cin, word);
 
-		bool found = LookupWord(wordList, word);
-		if (found == true)
-			cout << "found!" << endl;
-		else	{
-			correct_word = CorrectSpelling(wordList, word);
-			cout << correct_word << endl;
+		ToLowerCase(word);
+		RemoveRepeatLetters(word);
+		StarVowels(word);
+
+		map<string,string>::iterator word_simple_itr = wordList_dynamic.find(word);
+
+		if (word_simple_itr == wordList_dynamic.end())	{
+			cout << "NO SUGGESTION" << endl;
+		} else {
+			pair<string,string> word_simple = *word_simple_itr;
+			map<string,string>::iterator result_itr = wordList_original.find(word_simple.second);
+			pair<string,string> result = *result_itr;
+			cout << result.second << endl;
 		}
+
+
 	}
-}
-
-bool LookupWord(set<string>& wordList, string word)	{
-	return wordList.find(word) != wordList.end();
-}
-
-string CorrectSpelling(set<string>& wordList, string word)	{
-	//Check #1: Downcase "APPLE" to "apple"
-	ToLowerCase(word);
-	if (LookupWord(wordList, word))
-		return word;
-	
-	//Check #3: Incorrect vowels: "weke" => "wake"
-	vector<string> words_vowels;
-	GenWordsVowels(word, words_vowels);
-	for (vector<string>::iterator itr = words_vowels.begin(); itr < words_vowels.end(); itr++)	{
-		if (LookupWord(wordList, *itr))
-			return *itr;
-	}
-
-	//Check #2: Repeated letters: "jjoobbb" => "job"
-	string new_word = RemoveRepeatLetters(word);
-	if (LookupWord(wordList, new_word))
-		return new_word;
-	
-	return "NO SUGGESTION";
 }
 
 void ToLowerCase(string& str)	{
 	transform(str.begin(), str.end(), str.begin(), ::tolower);
 }
 
-void GenWordsVowels(string word, vector<string>& words_vowels)	{
+void StarVowels(string& word)	{
 	int length = word.length();
 	for (int i = 0; i < length; i++) {
-		if(Vowel(word[i]))	{
-				word[i] = 'a';
-				words_vowels.push_back(word);
-				word[i] = 'e';
-				words_vowels.push_back(word);
-				word[i] = 'i';
-				words_vowels.push_back(word);
-				word[i] = 'o';
-				words_vowels.push_back(word);
-				word[i] = 'u';
-				words_vowels.push_back(word);
-		}
+		if(Vowel(word[i]))	
+				word[i] = '*';
 	}
 }
+
 
 bool Vowel(char ch)	{
 	return ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u';
 }
 
-string RemoveRepeatLetters(string word)	{
+void RemoveRepeatLetters(string& word)	{
 	int length = word.length();
-	string new_word;
-	new_word.append(word, 0, 1);
-	for (int i = 1, j = 0; i < length; i++)	{
-		if (new_word[j] != word[i])	{
-			new_word.append(word, i, 1);
-			j++;
+	string new_word; 
+
+	new_word.push_back(word[0]);
+	for (int i = 1, j = 0; i < length; ++i)	{
+		if ((word[i] == '*') || (new_word[j] != word[i]))	{
+			new_word.push_back(word[i]);
+			++j;
 		}
 	}
-	return new_word; 
+
+	word = new_word;
 }
