@@ -37,12 +37,11 @@ ToLowerCase, RemoveRepeatLetters, StarVowels all take O(m) time.
 Storing <j*b, job> into the map takes O(log n).
 Storing <job, JoB> into the map takes O(log n).
 
-LoadWords does the preparation. LoadWords takes O(n log n + m) time because it involves those ToLowerCase, RemoveRepeatLetters, StarVowels, and n insertions into the maps.
+LoadWords does the preparation. LoadWords takes O(n log n + n*m) time because it involves n operations of ToLowerCase/RemoveRepeatLetters/StarVowels, and n insertions into the maps.
 
-Spellchecker is where the actual action happens. Finding a word involves running it through all 3 string operations ToLowerCase, RemoveRepeatLetters, StarVowels which each take O(m) time where m is the number of characters in the string. Then it looks up the lower cased, removing repetition, and starred vowel word in the maps, taking O(1) time for both maps.
+Spellchecker is where the actual action happens. Finding a word involves running it through all 3 string operations ToLowerCase, RemoveRepeatLetters, StarVowels which each take O(m) time where m is the number of characters in the string. Then it looks up the lower cased, removing repetition, and starred vowel word in the maps, taking O(log n) time for both maps.
 
-
-As such, the actual run time for spellchecking each word is O(m) where m is the number of characters in the string, which is much faster than O(n) the length of the entire dictionary. 
+As such, the actual run time is O(log n + m) per word checked, where n is the number of entries in the dictionary, and m is the number of characters in the string. This is much faster than O(n) the length of the entire dictionary. 
 
 (This doesn't count the preparation time inside LoadWords, because we are concerned about the running time it takes to actually look up the word once the user enters it to result.)
 
