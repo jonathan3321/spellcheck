@@ -28,7 +28,8 @@ If there are many possible corrections of an input word, your program can choose
 Final step: Write a second program that *generates* words with spelling mistakes of the above form, starting with correctly spelled English words. Pipe its output into the first program and verify that there are no occurrences of "NO SUGGESTION" in the output. 
 
 ***Analysis***
-This runs faster in O(n) time per word checked, where n is the length of hte dictionary.
+This runs faster than O(n) time per word checked, where n is the length of the dictionary. It actually runs in O(log n + m) time per word checked, where m is the number of characters in each word.
+
 The strategy is to have 2 map<string,string> wordList_dynamic, and wordList_original. If the word is JoB, wordList_dynamic will map j*b to job, which is the shortened form with no vowels. wordList_original will map job to JoB, which is the original form in the dictionary.
 
 Converting JoB => j*b requires downcasing the string, then replacing all vowels with a *, which takes O(m) time where m is the number of characters in the string. 
