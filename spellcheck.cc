@@ -3,12 +3,10 @@
 #include <string> 
 #include <map>
 #include <vector>
-#include <ctime>
 #include <cstdlib>
 
 using namespace std;
 
-void OpenUserFile(ifstream& input);
 void LoadWords(ifstream& input, map<string,string>& wordList_dynamic, map<string,string>& wordList_original);
 void Spellchecker(map<string,string>& wordList_dynamic, map<string,string>& wordList_original);
 void ToLowerCase(string& str);
@@ -24,24 +22,9 @@ int main()	{
 	//Word is JoB. Maps job to JoB (original form) 
 	map<string,string> wordList_original;
 
-	OpenUserFile(input);
+	input.open("dict.txt");
 	LoadWords(input, wordList_dynamic, wordList_original);
-	
 	Spellchecker(wordList_dynamic, wordList_original);
-}
-
-void OpenUserFile(ifstream& input)	{
-	while (true)	{
-		cout << "Enter filename for list of words: " << endl;
-		string filename;
-		getline(cin, filename);
-
-		input.open(filename.c_str());
-		if(input.is_open()) break;
-
-		cout << "Sorry, I can't find the file " << filename << endl;
-		input.clear();
-	}
 }
 
 void LoadWords(ifstream& input, map<string,string>& wordList_dynamic, map<string,string>& wordList_original)	{	
@@ -49,7 +32,7 @@ void LoadWords(ifstream& input, map<string,string>& wordList_dynamic, map<string
 		string word;
 		input >> word;
 
-		if(input.fail()) break;
+		if (input.fail()) break;
 
 		string word_starred = string(word);
 
@@ -70,7 +53,7 @@ void LoadWords(ifstream& input, map<string,string>& wordList_dynamic, map<string
 
 void Spellchecker(map<string,string>& wordList_dynamic, map<string,string>& wordList_original)	{
 
-	while(true)	{
+	while (true)	{
 		cout << "> ";
 		string word;
 		getline(cin, word);
@@ -100,12 +83,11 @@ void ToLowerCase(string& str)	{
 
 void StarVowels(string& word)	{
 	int length = word.length();
-	for (int i = 0; i < length; i++) {
-		if(Vowel(word[i]))	
+	for (int i = 0; i < length; ++i) {
+		if (Vowel(word[i]))	
 				word[i] = '*';
 	}
 }
-
 
 bool Vowel(char ch)	{
 	return ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u';
