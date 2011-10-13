@@ -1,0 +1,6 @@
+apple
+banana
+inside
+job
+orange
+wake
