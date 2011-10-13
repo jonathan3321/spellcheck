@@ -1,8 +1,52 @@
 spellcheck.cc implements the spellchecker.
 spellcheckgen.cc implements the generator to generate words that have the spelling mistakes.
 
- 
+***Problem***
+Write a program that reads a large list of English words (e.g. from /usr/share/dict/words on a unix system) into memory, and then reads words from stdin, and prints either the best spelling suggestion, or "NO SUGGESTION" if no suggestion can be found. The program should print ">" as a prompt before reading each word, and should loop until killed.
 
+Your solution should be faster than O(n) per word checked, where n is the length of the dictionary. That is to say, you can't scan the dictionary every time you want to spellcheck a word.
+
+For example:
+
+> sheeeeep
+sheep
+> peepple
+people
+> sheeple
+NO SUGGESTION
+
+The class of spelling mistakes to be corrected is as follows:
+
+    Case (upper/lower) errors: "inSIDE" => "inside"
+    Repeated letters: "jjoobbb" => "job"
+    Incorrect vowels: "weke" => "wake"
+
+Any combination of the above types of error in a single word should be corrected (e.g. "CUNsperrICY" => "conspiracy").
+
+If there are many possible corrections of an input word, your program can choose one in any way you like. It just has to be an English word that is a spelling correction of the input by the above rules.
+
+Final step: Write a second program that *generates* words with spelling mistakes of the above form, starting with correctly spelled English words. Pipe its output into the first program and verify that there are no occurrences of "NO SUGGESTION" in the output. 
+
+***Analysis***
+This runs faster in O(n) time per word checked, where n is the length of hte dictionary.
+The strategy is to have 2 map<string,string> wordList_dynamic, and wordList_original. If the word is JoB, wordList_dynamic will map j*b to job, which is the shortened form with no vowels. wordList_original will map job to JoB, which is the original form in the dictionary.
+
+Converting JoB => j*b requires downcasing the string, then replacing all vowels with a *, which takes O(m) time where m is the number of characters in the string. 
+
+ToLowerCase, RemoveRepeatLetters, StarVowels all take O(m) time.
+Storing <j*b, job> into the map takes O(log n).
+Storing <job, JoB> into the map takes O(log n).
+
+LoadWords does the preparation. LoadWords takes O(n log n + m) time because it involves those ToLowerCase, RemoveRepeatLetters, StarVowels, and n insertions into the maps.
+
+Spellchecker is where the actual action happens. Finding a word involves running it through all 3 string operations ToLowerCase, RemoveRepeatLetters, StarVowels which each take O(m) time where m is the number of characters in the string. Then it looks up the lower cased, removing repetition, and starred vowel word in the maps, taking O(1) time for both maps.
+
+
+As such, the actual run time for spellchecking each word is O(m) where m is the number of characters in the string, which is much faster than O(n) the length of the entire dictionary. 
+
+(This doesn't count the preparation time inside LoadWords, because we are concerned about the running time it takes to actually look up the word once the user enters it to result.)
+
+***Test Output***
 2legit2quit:spellcheck namtsui$ g++ -g spellcheck.cc -o spellcheck.out
 2legit2quit:spellcheck namtsui$ g++ -g spellcheckgen.cc -o gen.out
 2legit2quit:spellcheck namtsui$ ./gen.out
