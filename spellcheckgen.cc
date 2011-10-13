@@ -42,8 +42,8 @@ void GenWords(string word, ofstream& myfile)	{
 	myfile << word << endl;
 	ChangeVowels(word);
 	myfile << word << endl;
-	//ChangeRepeat(word);
-	//myfile << word << endl;
+	ChangeRepeat(word);
+	myfile << word << endl;
 }
 
 void ToUpperCase(string& str)	{

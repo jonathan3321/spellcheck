@@ -58,6 +58,9 @@ void Spellchecker(map<string,string>& wordList_dynamic, map<string,string>& word
 		string word;
 		getline(cin, word);
 
+		if(!std::cin)	
+			break;
+
 		ToLowerCase(word);
 		RemoveRepeatLetters(word);
 		StarVowels(word);
@@ -72,7 +75,6 @@ void Spellchecker(map<string,string>& wordList_dynamic, map<string,string>& word
 			pair<string,string> result = *result_itr;
 			cout << result.second << endl;
 		}
-
 
 	}
 }

@@ -1,0 +1,38 @@
+spellcheck.cc implements the spellchecker.
+spellcheckgen.cc implements the generator to generate words that have the spelling mistakes.
+
+ 
+
+2legit2quit:spellcheck namtsui$ g++ -g spellcheck.cc -o spellcheck.out
+2legit2quit:spellcheck namtsui$ g++ -g spellcheckgen.cc -o gen.out
+2legit2quit:spellcheck namtsui$ ./gen.out
+2legit2quit:spellcheck namtsui$ ./spellcheck.out < ./words.txt
+> apple
+> apple
+> apple
+> apple
+> banana
+> banana
+> banana
+> banana
+> conspiracy
+> conspiracy
+> conspiracy
+> conspiracy
+> inside
+> inside
+> inside
+> inside
+> job
+> job
+> job
+> job
+> orange
+> orange
+> orange
+> orange
+> wake
+> wake
+> wake
+> wake
+
