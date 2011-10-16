@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 #include <cstdlib>
+#include <algorithm>
 
 using namespace std;
 
